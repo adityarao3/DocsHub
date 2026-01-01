@@ -19,7 +19,9 @@ export const generateAnswer = async (question, documents) => {
       };
     }
 
-    let contextText = `
+    // Limit context to ~12000 tokens (48000 characters) to stay within model limits
+    const MAX_CONTEXT_CHARS = 48000;
+    const systemPrompt = `
 You are a helpful AI assistant.
 
 Your primary task is to answer questions using ONLY the information provided in the uploaded documents.
@@ -39,9 +41,18 @@ IMPORTANT RULES:
 DOCUMENTS:
 `;
 
+    let contextText = systemPrompt;
+    let remainingChars = MAX_CONTEXT_CHARS - systemPrompt.length - question.length - 200; // Reserve space
+    
+    const charsPerDoc = Math.floor(remainingChars / documents.length);
+
     documents.forEach((doc, index) => {
+      let docText = doc.extractedText || '';
+      if (docText.length > charsPerDoc) {
+        docText = docText.substring(0, charsPerDoc) + '... [truncated]';
+      }
       contextText += `--- Document ${index + 1}: ${doc.fileName} ---\n`;
-      contextText += `${doc.extractedText}\n\n`;
+      contextText += `${docText}\n\n`;
     });
 
     contextText += `\nQUESTION: ${question}\n\n`;
