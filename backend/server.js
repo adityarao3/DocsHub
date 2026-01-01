@@ -71,18 +71,14 @@ const connectDB = async () => {
     }
 };
 
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
-    connectDB().then(() => {
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-            console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-        });
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
-} else {
-    connectDB();
-}
+});
 
 process.on('unhandledRejection', (err) => {
     console.error('❌ Unhandled Rejection:', err);
